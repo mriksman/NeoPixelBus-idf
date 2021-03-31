@@ -27,7 +27,6 @@ License along with NeoPixel.  If not, see
 #pragma once
 
 #include <Arduino.h>
-
 /**** this is the only line changed from the original NeoPixelAnimator.h *****/
 #include "neopixelbus/src/internal/NeoEase.h"
 

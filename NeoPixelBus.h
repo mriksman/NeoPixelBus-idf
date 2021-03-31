@@ -46,13 +46,13 @@ License along with NeoPixel.  If not, see
 // '_state' flags for internal state
 #define NEO_DIRTY   0x80 // a change was made to pixel data that requires a show
 
-
-/**** The following includes locations modified ****/
 #include "neopixelbus/src/internal/NeoHueBlend.h"
 
 #include "neopixelbus/src/internal/NeoSettings.h"
 
 #include "neopixelbus/src/internal/RgbColor.h"
+#include "neopixelbus/src/internal/Rgb16Color.h"
+#include "neopixelbus/src/internal/Rgb48Color.h"
 #include "neopixelbus/src/internal/HslColor.h"
 #include "neopixelbus/src/internal/HsbColor.h"
 #include "neopixelbus/src/internal/HtmlColor.h"
@@ -63,6 +63,7 @@ License along with NeoPixel.  If not, see
 #include "neopixelbus/src/internal/NeoTm1814ColorFeatures.h"
 #include "neopixelbus/src/internal/DotStarColorFeatures.h"
 #include "neopixelbus/src/internal/Lpd8806ColorFeatures.h"
+#include "neopixelbus/src/internal/Lpd6803ColorFeatures.h"
 #include "neopixelbus/src/internal/P9813ColorFeatures.h"
 #include "neopixelbus/src/internal/NeoSegmentFeatures.h"
 
@@ -82,10 +83,16 @@ License along with NeoPixel.  If not, see
 #include "neopixelbus/src/internal/NeoEase.h"
 #include "neopixelbus/src/internal/NeoGamma.h"
 
-// ESP32 uses Rmt
+#include "neopixelbus/src/internal/NeoBusChannel.h"
+
+#include "neopixelbus/src/internal/DotStarGenericMethod.h"
+#include "neopixelbus/src/internal/Lpd8806GenericMethod.h"
+#include "neopixelbus/src/internal/Lpd6803GenericMethod.h"
+#include "neopixelbus/src/internal/Ws2801GenericMethod.h"
+#include "neopixelbus/src/internal/P9813GenericMethod.h"
+
+#include "NeoEsp32I2sMethod.h"
 #include "NeoEsp32RmtMethod.h"
-
-
 
 /**** below is the same as the original NeoPixelBus.h file ****/
 
@@ -99,6 +106,13 @@ public:
         _countPixels(countPixels),
         _state(0),
         _method(pin, countPixels, T_COLOR_FEATURE::PixelSize, T_COLOR_FEATURE::SettingsSize)
+    {
+    }
+
+    NeoPixelBus(uint16_t countPixels, uint8_t pin, NeoBusChannel channel) :
+        _countPixels(countPixels),
+        _state(0),
+        _method(pin, countPixels, T_COLOR_FEATURE::PixelSize, T_COLOR_FEATURE::SettingsSize, channel)
     {
     }
 
@@ -129,14 +143,14 @@ public:
     void Begin()
     {
         _method.Initialize();
-        Dirty();
+        ClearTo(0);
     }
 
     // used by DotStartSpiMethod if pins can be configured
     void Begin(int8_t sck, int8_t miso, int8_t mosi, int8_t ss)
     {
         _method.Initialize(sck, miso, mosi, ss);
-        Dirty();
+        ClearTo(0);
     }
 
     void Show(bool maintainBufferConsistency = true)
@@ -336,6 +350,12 @@ public:
     void SetPixelSettings(const typename T_COLOR_FEATURE::SettingsObject& settings)
     {
         T_COLOR_FEATURE::applySettings(_method.getData(), settings);
+        Dirty();
+    };
+
+    void SetMethodSettings(const typename T_METHOD::SettingsObject& settings)
+    {
+        _method.applySettings(settings);
         Dirty();
     };
  
