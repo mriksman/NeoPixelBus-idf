@@ -85,14 +85,19 @@ License along with NeoPixel.  If not, see
 
 #include "neopixelbus/src/internal/NeoBusChannel.h"
 
-#include "neopixelbus/src/internal/DotStarGenericMethod.h"
-#include "neopixelbus/src/internal/Lpd8806GenericMethod.h"
-#include "neopixelbus/src/internal/Lpd6803GenericMethod.h"
-#include "neopixelbus/src/internal/Ws2801GenericMethod.h"
-#include "neopixelbus/src/internal/P9813GenericMethod.h"
+/** These require TwoWireBitBangImple.h which uses Arduino defines not supported/ported **/
+//#include "neopixelbus/src/internal/DotStarGenericMethod.h"
+//#include "neopixelbus/src/internal/Lpd8806GenericMethod.h"
+//#include "neopixelbus/src/internal/Lpd6803GenericMethod.h"
+//#include "neopixelbus/src/internal/Ws2801GenericMethod.h"
+//#include "neopixelbus/src/internal/P9813GenericMethod.h"
 
-#include "NeoEsp32I2sMethod.h"
-#include "NeoEsp32RmtMethod.h"
+// needs to be defined in CMakeLists (for .cpp compilation) and also here (for use in the .h file)
+#define ARDUINO_ARCH_ESP32 1
+#define NEOPIXEL_ESP32_RMT_DEFAULT 1
+//#include "neopixelbus/src/internal/NeoEsp32I2sMethod.h"     //haven't ported this yet
+#include "neopixelbus/src/internal/NeoEsp32RmtMethod.h"
+
 
 /**** below is the same as the original NeoPixelBus.h file ****/
 
